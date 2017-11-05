@@ -1,7 +1,7 @@
-import { Project, File } from "@atomist/rug/model/Core";
-import { PathExpressionEngine, TextTreeNode } from "@atomist/rug/tree/PathExpression";
-import * as TreePrinter from "../../editors/TreePrinter";
 import * as _ from "lodash";
+import { PathExpressionEngine, TextTreeNode } from "@atomist/rug/tree/PathExpression";
+import { File, Project } from "@atomist/rug/model/Core";
+import * as TreePrinter from "../../editors/TreePrinter";
 
 interface Field {
     name: string;
@@ -21,18 +21,18 @@ export interface Message {
 }
 
 export interface Function {
-    name: string, // make this a class in order to set it; there can be 2
+    name: string; // make this a class in order to set it; there can be 2
     // parameters?
-    declaredType: TextTreeNode,
-    body: TextTreeNode,
-    _whole: TextTreeNode
+    declaredType: TextTreeNode;
+    body: TextTreeNode;
+    _whole: TextTreeNode;
 }
 
 export interface Section {
-    _whole: TextTreeNode,
-    name: TextTreeNode,
-    body: TextTreeNode,
-    typeAliases: TypeAlias[]
+    _whole: TextTreeNode;
+    name: TextTreeNode;
+    body: TextTreeNode;
+    typeAliases: TypeAlias[];
 }
 
 export function addDeclaration(s: Section, t: TypeAlias) {
@@ -40,9 +40,9 @@ export function addDeclaration(s: Section, t: TypeAlias) {
 }
 
 export interface TypeAlias {
-    name: TextTreeNode,
-    body: TextTreeNode,
-    _whole: TextTreeNode,
+    name: TextTreeNode;
+    body: TextTreeNode;
+    _whole: TextTreeNode;
 }
 
 export type ProgramLevel = "static" | "beginner" | "advanced"
@@ -56,9 +56,9 @@ export class ElmProgram {
         return new ElmProgram(project, filepath);
     }
 
-    private pxe: PathExpressionEngine;
     public reparse: () => void;
     public moduleNode: TextTreeNode & any;
+    private pxe: PathExpressionEngine;
 
     private constructor(project: Project, private filepath: string) {
         this.pxe = project.context.pathExpressionEngine;
@@ -73,11 +73,10 @@ export class ElmProgram {
 
     }
 
-
     get programLevel(): ProgramLevel {
         const mainFunction = this.getFunction("main");
         if (mainFunction == null) {
-            throw new Error(`Unable to analyse ${this.filepath}. No main function found`)
+            throw new Error(`Unable to analyse ${this.filepath}. No main function found`);
         }
 
         const mainType = (mainFunction.declaredType as any).typeReference.typeName.value();
@@ -126,7 +125,7 @@ export class ElmProgram {
         this.reparse();
     }
 
-    public getFunction(name: string): Function | null {
+    public getFunction(name: string): any {
         const functionNodes = this.descend(`//functionDeclaration[@functionName='${name}']`);
         if (functionNodes.length === 0) {
             return null;
@@ -366,7 +365,7 @@ export class ElmProgram {
         }
     }
 
-    private toSection(ttn: TextTreeNode & any): Section  {
+    private toSection(ttn: TextTreeNode & any): Section {
         const typeAliases = this.descend("/sectionContent/typeAlias", ttn).map(this.toTypeAlias);
 
         return {
